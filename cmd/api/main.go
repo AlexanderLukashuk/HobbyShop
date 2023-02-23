@@ -4,11 +4,17 @@ import (
 	"context"
 	"database/sql"
 	"flag"
+	"fmt"
+	"log"
+	"net/http"
 	"os"
-	"strconv"
 	"strings"
 	"sync"
 	"time"
+
+	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
+	"github.com/spf13/viper"
 
 	"fainal.net/internal/data"
 	"fainal.net/internal/jsonlog"
@@ -57,21 +63,21 @@ type application struct {
 //Sasha   -
 
 func main() {
-	// fiber.SetConfigFile("ENV")
-	// viper.ReadInConfig()
-	// viper.AutomaticEnv()
-	// port := fmt.Sprint(viper.Get("PORT"))
+	viper.SetConfigFile("ENV")
+	viper.ReadInConfig()
+	viper.AutomaticEnv()
+	port := fmt.Sprint(viper.Get("PORT"))
 
-	port := os.Getenv("PORT")
+	// port := os.Getenv("PORT")
 
-	if port == "" {
-		port = "3000"
-	}
+	// if port == "" {
+	// 	port = "3000"
+	// }
 
-	portInt, _ := strconv.Atoi(port)
+	// portInt, _ := strconv.Atoi(port)
 
 	var cfg config
-	flag.IntVar(&cfg.port, "port", portInt, "API server port")
+	flag.IntVar(&cfg.port, "port", 8000, "API server port")
 	flag.StringVar(&cfg.env, "env", "development", "Environment (development|staging|production)")
 
 	// Read the DSN value from the db-dsn command-line flag into the config struct. We
@@ -102,8 +108,26 @@ func main() {
 		return nil
 	})
 
+	r := mux.NewRouter().StrictSlash(true)
+
 	flag.Parse()
 	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
+	loggedRouter := handlers.LoggingHandler(os.Stdout, r)
+
+	// db, err := openDB(cfg)
+	// if err != nil {
+	// 	logger.PrintFatal(err, nil)
+	// }
+
+	// defer db.Close()
+	// logger.PrintInfo("database connection pool established", nil)
+
+	// app := &application{
+	// 	config: cfg,
+	// 	logger: logger,
+	// 	models: data.NewModels(db),
+	// 	mailer: mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender), // data.NewModels() function to initialize a Models struct
+	// }
 
 	db, err := openDB(cfg)
 	if err != nil {
@@ -113,17 +137,12 @@ func main() {
 	defer db.Close()
 	logger.PrintInfo("database connection pool established", nil)
 
-	app := &application{
-		config: cfg,
-		logger: logger,
-		models: data.NewModels(db),
-		mailer: mailer.New(cfg.smtp.host, cfg.smtp.port, cfg.smtp.username, cfg.smtp.password, cfg.smtp.sender), // data.NewModels() function to initialize a Models struct
-	}
+	// err = app.serve()
+	// if err != nil {
+	// 	logger.PrintFatal(err, nil)
+	// }
 
-	err = app.serve()
-	if err != nil {
-		logger.PrintFatal(err, nil)
-	}
+	log.Println(http.ListenAndServe(":"+port, loggedRouter))
 
 }
 
