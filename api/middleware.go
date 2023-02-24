@@ -1,19 +1,20 @@
-package main
+package api
 
 import (
 	"errors"
-	"fainal.net/internal/data"
-	"fainal.net/internal/validator"
 	"fmt"
-	"golang.org/x/time/rate"
 	"net"
 	"net/http"
 	"strings"
 	"sync"
 	"time"
+
+	"fainal.net/internal/data"
+	"fainal.net/internal/validator"
+	"golang.org/x/time/rate"
 )
 
-func (app *application) recoverPanic(next http.Handler) http.Handler {
+func (app *Application) recoverPanic(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		defer func() {
@@ -26,7 +27,7 @@ func (app *application) recoverPanic(next http.Handler) http.Handler {
 		next.ServeHTTP(w, r)
 	})
 }
-func (app *application) rateLimit(next http.Handler) http.Handler {
+func (app *Application) rateLimit(next http.Handler) http.Handler {
 
 	type client struct {
 		limiter  *rate.Limiter
@@ -52,7 +53,7 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 		}
 	}()
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if app.config.limiter.enabled {
+		if app.config.Limiter.Enabled {
 			ip, _, err := net.SplitHostPort(r.RemoteAddr)
 			if err != nil {
 				app.serverErrorResponse(w, r, err)
@@ -62,7 +63,7 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 			if _, found := clients[ip]; !found {
 				clients[ip] = &client{
 
-					limiter: rate.NewLimiter(rate.Limit(app.config.limiter.rps), app.config.limiter.burst),
+					limiter: rate.NewLimiter(rate.Limit(app.config.Limiter.Rps), app.config.Limiter.Burst),
 				}
 			}
 			clients[ip].lastSeen = time.Now()
@@ -77,7 +78,7 @@ func (app *application) rateLimit(next http.Handler) http.Handler {
 	})
 
 }
-func (app *application) authenticate(next http.Handler) http.Handler {
+func (app *Application) authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		w.Header().Add("Vary", "Authorization")
@@ -119,7 +120,7 @@ func (app *application) authenticate(next http.Handler) http.Handler {
 	})
 }
 
-func (app *application) requireActivatedUser(next http.HandlerFunc) http.HandlerFunc {
+func (app *Application) requireActivatedUser(next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
 		user := app.contextGetUser(r)
@@ -137,15 +138,15 @@ func (app *application) requireActivatedUser(next http.HandlerFunc) http.Handler
 		next.ServeHTTP(w, r)
 	})
 }
-func (app *application) enableCORS(next http.Handler) http.Handler {
+func (app *Application) enableCORS(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Add("Vary", "Origin")
 		// Add the "Vary: Access-Control-Request-Method" header.
 		w.Header().Add("Vary", "Access-Control-Request-Method")
 		origin := r.Header.Get("Origin")
 		if origin != "" {
-			for i := range app.config.cors.trustedOrigins {
-				if origin == app.config.cors.trustedOrigins[i] {
+			for i := range app.config.Cors.TrustedOrigins {
+				if origin == app.config.Cors.TrustedOrigins[i] {
 					w.Header().Set("Access-Control-Allow-Origin", origin)
 					w.Header().Set("Access-Control-Allow-Credentials", "true")
 					// Check if the request has the HTTP method OPTIONS and contains the

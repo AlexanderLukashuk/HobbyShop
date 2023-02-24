@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"context"
@@ -11,10 +11,10 @@ import (
 	"time"
 )
 
-func (app *application) serve() error {
+func (app *Application) serve() error {
 
 	srv := &http.Server{
-		Addr:         fmt.Sprintf(":%d", app.config.port),
+		Addr:         fmt.Sprintf(":%d", app.config.Port),
 		Handler:      app.routes(),
 		IdleTimeout:  time.Minute,
 		ReadTimeout:  10 * time.Second,
@@ -47,7 +47,7 @@ func (app *application) serve() error {
 
 	app.logger.PrintInfo("starting server", map[string]string{
 		"addr": srv.Addr,
-		"env":  app.config.env,
+		"env":  app.config.Env,
 	})
 	err := srv.ListenAndServe()
 	if !errors.Is(err, http.ErrServerClosed) {

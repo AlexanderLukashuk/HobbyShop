@@ -1,15 +1,16 @@
-package main
+package api
 
 import (
 	"errors"
-	"fainal.net/internal/data"
-	"fainal.net/internal/validator"
 	"net/http"
 	"strings"
 	"time"
+
+	"fainal.net/internal/data"
+	"fainal.net/internal/validator"
 )
 
-func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) registerUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	var input struct {
 		Name     string `json:"name"`
@@ -18,7 +19,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		Role     string `json:"role"`
 	}
 
-	err := app.readJSON(w, r, &input)
+	err := app.ReadJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -76,14 +77,14 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 
 }
 
-func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) activateUserHandler(w http.ResponseWriter, r *http.Request) {
 
 	var input struct {
 		TokenPlaintext string `json:"token"`
 		Password       string `json:"old_password"`
 		NewPassword    string `json:"new_password"`
 	}
-	err := app.readJSON(w, r, &input)
+	err := app.ReadJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -155,7 +156,7 @@ func (app *application) activateUserHandler(w http.ResponseWriter, r *http.Reque
 	}
 
 }
-func (app *application) getUserInfoHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) getUserInfoHandler(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Add("Vary", "Authorization")
 	authorizationHeader := r.Header.Get("Authorization")

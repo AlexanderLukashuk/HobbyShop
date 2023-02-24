@@ -1,20 +1,21 @@
-package main
+package api
 
 import (
 	"errors"
-	"fainal.net/internal/data"
-	"fainal.net/internal/validator"
 	"net/http"
 	"time"
+
+	"fainal.net/internal/data"
+	"fainal.net/internal/validator"
 )
 
-func (app *application) createAuthenticationTokenHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) createAuthenticationTokenHandler(w http.ResponseWriter, r *http.Request) {
 
 	var input struct {
 		Email    string `json:"email"`
 		Password string `json:"password"`
 	}
-	err := app.readJSON(w, r, &input)
+	err := app.ReadJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return

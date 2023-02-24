@@ -1,4 +1,4 @@
-package main
+package api
 
 import (
 	"errors"
@@ -10,7 +10,7 @@ import (
 	"fainal.net/internal/validator"
 )
 
-func (app *application) createItemHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) createItemHandler(w http.ResponseWriter, r *http.Request) {
 
 	var input struct {
 		Name        string   `json:"name"`
@@ -19,7 +19,7 @@ func (app *application) createItemHandler(w http.ResponseWriter, r *http.Request
 		Category    []string `json:"category"`
 	}
 
-	err := app.readJSON(w, r, &input)
+	err := app.ReadJSON(w, r, &input)
 	if err != nil {
 		app.errorResponse(w, r, http.StatusBadRequest, err.Error())
 	}
@@ -74,7 +74,7 @@ func (app *application) createItemHandler(w http.ResponseWriter, r *http.Request
 
 }
 
-func (app *application) showItemHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) showItemHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
 		app.notFoundResponse(w, r)
@@ -97,7 +97,7 @@ func (app *application) showItemHandler(w http.ResponseWriter, r *http.Request) 
 
 }
 
-func (app *application) updateItemHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) updateItemHandler(w http.ResponseWriter, r *http.Request) {
 
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -123,7 +123,7 @@ func (app *application) updateItemHandler(w http.ResponseWriter, r *http.Request
 		Category    []string `json:"category"`
 	}
 
-	err = app.readJSON(w, r, &input)
+	err = app.ReadJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -160,7 +160,7 @@ func (app *application) updateItemHandler(w http.ResponseWriter, r *http.Request
 	}
 }
 
-func (app *application) deleteItemHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) deleteItemHandler(w http.ResponseWriter, r *http.Request) {
 
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -185,7 +185,7 @@ func (app *application) deleteItemHandler(w http.ResponseWriter, r *http.Request
 	}
 }
 
-func (app *application) listItemsHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) listItemsHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Name     string
 		Category []string

@@ -1,17 +1,18 @@
-package main
+package api
 
 import (
 	"errors"
-	"fainal.net/internal/data"
 	"net/http"
+
+	"fainal.net/internal/data"
 )
 
-func (app *application) createBasketHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) createBasketHandler(w http.ResponseWriter, r *http.Request) {
 	var input struct {
 		Email string  `json:"email"`
 		Items []int64 `json:"items"`
 	}
-	err := app.readJSON(w, r, &input)
+	err := app.ReadJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -47,7 +48,7 @@ func (app *application) createBasketHandler(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-func (app *application) showBasketHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) showBasketHandler(w http.ResponseWriter, r *http.Request) {
 	id, err := app.readIDParam(r)
 	if err != nil {
 		app.notFoundResponse(w, r)
@@ -70,7 +71,7 @@ func (app *application) showBasketHandler(w http.ResponseWriter, r *http.Request
 
 }
 
-func (app *application) updateBasketHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) updateBasketHandler(w http.ResponseWriter, r *http.Request) {
 
 	id, err := app.readIDParam(r)
 	if err != nil {
@@ -93,7 +94,7 @@ func (app *application) updateBasketHandler(w http.ResponseWriter, r *http.Reque
 		Items []int64 `json:"items"`
 	}
 
-	err = app.readJSON(w, r, &input)
+	err = app.ReadJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return
@@ -115,7 +116,7 @@ func (app *application) updateBasketHandler(w http.ResponseWriter, r *http.Reque
 	}
 }
 
-func (app *application) deleteBasketHandler(w http.ResponseWriter, r *http.Request) {
+func (app *Application) deleteBasketHandler(w http.ResponseWriter, r *http.Request) {
 
 	id, err := app.readIDParam(r)
 	if err != nil {
