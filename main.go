@@ -4,17 +4,12 @@ import (
 	"context"
 	"database/sql"
 	"flag"
-	"fmt"
 	"log"
-	"net/http"
 	"os"
-	"strconv"
 	"strings"
 	"time"
 
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
-	"github.com/spf13/viper"
+	"github.com/gofiber/fiber/v2"
 
 	"fainal.net/api"
 	"fainal.net/internal/jsonlog"
@@ -26,22 +21,22 @@ import (
 //Sasha   -
 
 func main() {
-	viper.SetConfigFile("ENV")
-	viper.ReadInConfig()
-	viper.AutomaticEnv()
-	port := fmt.Sprint(viper.Get("PORT"))
+	// viper.SetConfigFile("ENV")
+	// viper.ReadInConfig()
+	// viper.AutomaticEnv()
+	// port := fmt.Sprint(viper.Get("PORT"))
 
 	// port := os.Getenv("PORT")
 
-	if port == "" {
-		port = "3000"
-	}
+	// if port == "" {
+	// 	port = "3000"
+	// }
 
-	portInt, _ := strconv.Atoi(port)
+	// portInt, _ := strconv.Atoi(port)
 
 	var cfg api.Config
-	flag.IntVar(&cfg.Port, "port", portInt, "API server port")
-	flag.StringVar(&cfg.Env, "env", "development", "Environment (development|staging|production)")
+	// flag.IntVar(&cfg.Port, "port", portInt, "API server port")
+	// flag.StringVar(&cfg.Env, "env", "development", "Environment (development|staging|production)")
 
 	// Read the DSN value from the db-dsn command-line flag into the config struct. We
 	// default to using our development DSN if no flag is provided.
@@ -72,11 +67,12 @@ func main() {
 		return nil
 	})
 
-	r := mux.NewRouter().StrictSlash(true)
+	// r := mux.NewRouter().StrictSlash(true)
 
 	flag.Parse()
 	logger := jsonlog.New(os.Stdout, jsonlog.LevelInfo)
-	loggedRouter := handlers.LoggingHandler(os.Stdout, r)
+	app := fiber.New()
+	// loggedRouter := handlers.LoggingHandler(os.Stdout, r)
 
 	// db, err := openDB(cfg)
 	// if err != nil {
@@ -106,7 +102,15 @@ func main() {
 	// 	logger.PrintFatal(err, nil)
 	// }
 
-	log.Println(http.ListenAndServe(":"+port, loggedRouter))
+	port := os.Getenv("PORT")
+
+	if port == "" {
+		port = "3000"
+	}
+
+	log.Fatal(app.Listen("0.0.0.0:" + port))
+
+	// log.Println(http.ListenAndServe(":"+port, loggedRouter))
 
 }
 
