@@ -46,7 +46,8 @@ func main() {
 	// default to using our development DSN if no flag is provided.
 	// in powershell use next command: $env:DSN="postgres://postgres:20072004@localhost:5432/greenlight?sslmode=disable"
 	// flag.StringVar(&cfg.db.dsn, "db-dsn", "postgres://postgres:admin@localhost/final_go?sslmode=disable", "PostgreSQL DSN")
-	flag.StringVar(&cfg.Db.Dsn, "db-dsn", "postgres://postgres:postgres@localhost/final_go?sslmode=disable", "PostgreSQL DSN")
+	// flag.StringVar(&cfg.Db.Dsn, "db-dsn", "postgres://postgres:postgres@localhost/final_go?sslmode=disable", "PostgreSQL DSN")
+	flag.StringVar(&cfg.Db.Dsn, "db-dsn", "postgresql://postgres:afkgyS5uj83bhTX30viG@containers-us-west-112.railway.app:7599/railway", "PostgreSQL DSN")
 
 	// Setting restrictions on db connections
 	flag.IntVar(&cfg.Db.MaxOpenConns, "db-max-open-conns", 25, "PostgreSQL max open connections")
